@@ -1,10 +1,13 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
 import Image from "next/image";
 import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
+import { type RouterOutputs, api } from "~/utils/api";
+import { LoadingPage } from "~/components/loading";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
-import { api } from "~/utils/api";
+dayjs.extend(relativeTime);
 
 const CreatePostWizard = () => {
   const { user } = useUser();
@@ -18,22 +21,84 @@ const CreatePostWizard = () => {
         src={user.profileImageUrl}
         alt="profile picture"
         className="rounded-full"
+        priority
       />
       <input
         placeholder="Type something..."
         className="grow bg-transparent outline-none"
       />
+      <SignOutButton />
+    </div>
+  );
+};
+
+type PostType = RouterOutputs["posts"]["getAll"][number];
+
+const PostItem = (props: { data: PostType }) => {
+  const {
+    data: { post, author },
+  } = props;
+
+  if (!author) {
+    return null;
+  }
+
+  const createdAt = dayjs(post.createdAt).fromNow();
+  const username = `@${author.username}`;
+
+  return (
+    <div className="flex gap-3 border-b border-slate-400 p-4">
+      <div>
+        <Image
+          src={author.profileImageUrl}
+          alt={`${username}'s profile picture`}
+          height={44}
+          width={44}
+          className="rounded-full"
+        />
+      </div>
+      <div>
+        <div className="flex gap-1">
+          <strong>{author.firstName}</strong>
+          <div className="text-slate-500">
+            <span>
+              {username} &bull; {createdAt}
+            </span>
+          </div>
+        </div>
+        <div>{post.content}</div>
+        <div></div>
+      </div>
+    </div>
+  );
+};
+
+const Feed = () => {
+  const { data, isLoading } = api.posts.getAll.useQuery();
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
+  if (!data) {
+    return <div>Something went wrong...</div>;
+  }
+
+  return (
+    <div className="flex flex-col">
+      {data.map((data) => (
+        <PostItem key={data.post.id} data={data} />
+      ))}
     </div>
   );
 };
 
 const Home: NextPage = () => {
-  const user = useUser();
+  const { isLoaded, isSignedIn } = useUser();
+  api.posts.getAll.useQuery();
 
-  const { data } = api.posts.getAll.useQuery();
-
-  if (!data) {
-    return <div>Loading...</div>;
+  if (!isLoaded) {
+    return <LoadingPage />;
   }
 
   return (
@@ -46,15 +111,10 @@ const Home: NextPage = () => {
       <main className="flex h-screen justify-center">
         <div className="h-full w-full border-x border-slate-400 md:max-w-2xl">
           <div className="border-b border-slate-400 p-4">
-            {user.isSignedIn ? <CreatePostWizard /> : <SignInButton />}
+            {!isSignedIn && <SignInButton />}
+            {isSignedIn && <CreatePostWizard />}
           </div>
-          <div className="flex flex-col">
-            {[...data, ...data]?.map((post) => (
-              <div key={post.id} className="border-b border-slate-400 p-4 ">
-                {post.content}
-              </div>
-            ))}
-          </div>
+          <Feed />
         </div>
       </main>
     </>
