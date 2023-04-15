@@ -3,8 +3,8 @@ import { type RouterOutputs } from "~/utils/api";
 
 type PostType = RouterOutputs["posts"]["getAll"][number];
 
-const PostPage = (props: PostType) => {
-  return <Layout title={props.post.authorId}>postpage</Layout>;
+const PostPage = () => {
+  return <Layout title="postpage">postpage</Layout>;
 };
 
 export default PostPage;
