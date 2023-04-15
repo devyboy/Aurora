@@ -44,7 +44,7 @@ const Layout = (props: PropsWithChildren<LayoutProps>) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="flex">
-        <header className="relative w-full max-w-sm">
+        <header className="relative hidden w-full max-w-sm md:block">
           <div className="absolute right-4 mt-5">
             <Link href="/home" className="mb-6">
               <h1 className="text-4xl font-extrabold">Skybird</h1>
