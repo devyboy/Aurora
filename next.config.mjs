@@ -10,6 +10,13 @@ const config = {
   images: {
     domains: ["images.clerk.dev"],
   },
+  redirects: async () => [
+    {
+      source: "/",
+      destination: "/home",
+      permanent: true,
+    },
+  ],
 
   /**
    * If you have the "experimental: { appDir: true }" setting enabled, then you
