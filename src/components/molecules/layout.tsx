@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 import { type PropsWithChildren } from "react";
 import Button from "../atoms/button";
@@ -36,6 +37,7 @@ const plusIcon = (
 );
 
 const Layout = (props: PropsWithChildren<LayoutProps>) => {
+  const { route } = useRouter();
   return (
     <>
       <Head>
@@ -43,22 +45,27 @@ const Layout = (props: PropsWithChildren<LayoutProps>) => {
         <meta name="description" content={props.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="flex">
-        <header className="relative hidden w-full max-w-sm md:block">
-          <div className="absolute right-4 mt-5">
+      <div className="flex justify-center sm:justify-start">
+        <header className="relative hidden w-full max-w-md shrink sm:block">
+          <div className="absolute right-16 mt-5">
             <Link href="/home" className="mb-6">
               <h1 className="text-4xl font-extrabold">Skybird</h1>
             </Link>
             <nav className="flex flex-col p-4">
-              {navItems.map(({ label, to }) => (
-                <Link
-                  key={label}
-                  href={to}
-                  className="w-min rounded-xl p-4 text-left text-xl font-semibold hover:bg-white/10"
-                >
-                  {label}
-                </Link>
-              ))}
+              {navItems.map(({ label, to }) => {
+                const isRouteActive = route === to;
+                return (
+                  <Link
+                    key={label}
+                    href={to}
+                    className={`my-1 w-min rounded-xl p-3 text-left text-xl font-bold transition-all duration-150 hover:bg-white/10 ${
+                      isRouteActive ? "text-secondary" : ""
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
               <Button
                 icon={plusIcon}
                 className="mt-5"
@@ -69,8 +76,8 @@ const Layout = (props: PropsWithChildren<LayoutProps>) => {
             </nav>
           </div>
         </header>
-        <main className="h-screen w-full grow overflow-y-scroll">
-          <div className="m-auto ml-0 mr-auto max-w-xl flex-col justify-center border-x border-gray-800 ">
+        <main className="h-screen shrink-0 grow overflow-y-scroll">
+          <div className="m-auto w-full max-w-xl flex-col justify-center border-x border-gray-800 sm:ml-0 sm:mr-auto">
             {props.children}
           </div>
         </main>

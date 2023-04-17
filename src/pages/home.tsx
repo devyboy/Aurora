@@ -16,8 +16,8 @@ const Home: NextPage = () => {
 
   const layoutProps = {
     home: true,
-    title: "Test maker",
-    description: "Test maker app",
+    title: "Skybird",
+    description: "Combine your Twitter and Bluesky feeds into one!",
   };
 
   return (
