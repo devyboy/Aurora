@@ -8,32 +8,34 @@ dayjs.extend(relativeTime);
 
 type PostType = RouterOutputs["posts"]["getAll"][number];
 
-const PostItem = (props: { data: PostType }) => {
+const PostItem = (props: { data: PostType; link?: boolean }) => {
   const {
     data: { post, author },
+    link = true,
   } = props;
-
-  if (!author) {
-    return null;
-  }
 
   const createdAt = dayjs(post.createdAt).fromNow();
   const postPath = `/${author.id}/${post.id}`;
 
+  const PostComponent = link ? Link : "div";
+
   return (
-    <Link href={postPath} className="flex gap-3 border-b border-gray-800 p-3">
+    <PostComponent
+      href={postPath}
+      className="flex gap-3 border-b border-gray-800 p-3"
+    >
       <ProfileImg profile={author} />
       <div>
-        <div className="mb-1 flex gap-1">
+        <div className="mb-1 flex items-center gap-1">
           <Link href={`/${author.id}`}>
             <strong>{author.firstName}</strong>{" "}
             <span className="text-sm text-slate-500">@{author.username}</span>
           </Link>
-          <span className="text-slate-500">&bull; {createdAt}</span>
+          <span className="text-sm text-slate-500">&bull; {createdAt}</span>
         </div>
         <p>{post.content}</p>
       </div>
-    </Link>
+    </PostComponent>
   );
 };
 

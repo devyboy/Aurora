@@ -1,5 +1,5 @@
 import clerkClient, { type User } from "@clerk/clerk-sdk-node";
-import { Post } from "@prisma/client";
+import type { Post } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -22,7 +22,6 @@ const addUserDataToPosts = async (posts: Post[]) => {
     const users = (
         await clerkClient.users.getUserList({
             userId: userId,
-            limit: 110,
         })
     ).map(filterUserForClient);
 
@@ -37,8 +36,8 @@ const addUserDataToPosts = async (posts: Post[]) => {
                 message: `Author for post not found. POST ID: ${post.id}, USER ID: ${post.authorId}`,
             });
         }
+
         if (!author.username) {
-            // user the ExternalUsername
             if (!author.externalUsername) {
                 throw new TRPCError({
                     code: "INTERNAL_SERVER_ERROR",
@@ -61,15 +60,7 @@ const addUserDataToPosts = async (posts: Post[]) => {
 export const postsRouter = createTRPCRouter({
     getAll: publicProcedure.query(async ({ ctx }) => {
         const posts = await ctx.prisma.post.findMany()
-
-        const userIds = (await clerkClient.users.getUserList({
-            userId: posts.map((post) => post.authorId)
-        })).map(filterUserForClient)
-
-        return posts.map((post) => ({
-            post,
-            author: userIds.find((user) => user.id === post.authorId)
-        }))
+        return addUserDataToPosts(posts)
     }),
 
     getPostById: publicProcedure.input(z.object({ id: z.string() }))
@@ -89,7 +80,7 @@ export const postsRouter = createTRPCRouter({
         const post = await ctx.prisma.post.create({
             data: {
                 authorId,
-                content: input.content
+                content: input.content,
             }
         })
 

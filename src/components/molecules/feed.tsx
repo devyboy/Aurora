@@ -18,9 +18,6 @@ const Feed = () => {
       {data.map((data) => (
         <PostItem key={data.post.id} data={data} />
       ))}
-      <div className="flex justify-center py-6 align-middle text-slate-500">
-        <p>That&apos;s the end!</p>
-      </div>
     </div>
   );
 };

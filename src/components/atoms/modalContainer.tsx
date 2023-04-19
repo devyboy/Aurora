@@ -1,13 +1,10 @@
-import { type ReactNode } from "react";
+import { useContext } from "react";
+import ModalContext from "../../contexts/modalContext";
 
-interface ModalContainerProps {
-  isModalOpen: boolean;
-  handleModalClose: () => void;
-  children?: ReactNode;
-}
+const ModalContainer = () => {
+  const { isModalOpen, setIsModalOpen } = useContext(ModalContext);
 
-const ModalContainer = (props: ModalContainerProps) => {
-  if (!props.isModalOpen) {
+  if (!isModalOpen) {
     return null;
   }
 
@@ -22,7 +19,7 @@ const ModalContainer = (props: ModalContainerProps) => {
 
       <div className="fixed inset-0 z-10 overflow-y-auto">
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-          <div className="relative transform overflow-hidden rounded-lg bg-slate-900 text-left shadow-md transition-all sm:my-8 sm:w-full sm:max-w-lg">
+          <div className="relative transform overflow-hidden rounded-lg bg-slate-900 text-left shadow-sm transition-all sm:my-8 sm:w-full sm:max-w-lg">
             <div className=" px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
               <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                 <h2
@@ -49,7 +46,7 @@ const ModalContainer = (props: ModalContainerProps) => {
               </button>
               <button
                 type="button"
-                onClick={props.handleModalClose}
+                onClick={() => setIsModalOpen(false)}
                 className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
               >
                 Cancel

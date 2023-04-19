@@ -1,18 +1,9 @@
-import { useState } from "react";
-import ModalContainer from "~/components/atoms/modalContainer";
-import Layout from "~/components/molecules/layout";
+import { useContext } from "react";
+import ModalContext from "~/contexts/modalContext";
 
 const UserPage = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  return (
-    <Layout>
-      <button onClick={() => setIsModalOpen(true)}>Open modal</button>
-      <ModalContainer
-        isModalOpen={isModalOpen}
-        handleModalClose={() => setIsModalOpen(false)}
-      />
-    </Layout>
-  );
+  const { setIsModalOpen } = useContext(ModalContext);
+  return <button onClick={() => setIsModalOpen(true)}>Open modal</button>;
 };
 
 export default UserPage;

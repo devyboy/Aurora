@@ -5,12 +5,6 @@ import { useRouter } from "next/router";
 import { type PropsWithChildren } from "react";
 import Button from "../atoms/button";
 
-type LayoutProps = {
-  home?: boolean;
-  title?: React.ReactNode;
-  description?: string;
-};
-
 const navItems = [
   { label: "Home", to: "/home" },
   { label: "Explore", to: "/explore" },
@@ -36,13 +30,16 @@ const plusIcon = (
   </svg>
 );
 
-const Layout = (props: PropsWithChildren<LayoutProps>) => {
+const Layout = (props: PropsWithChildren) => {
   const { route } = useRouter();
   return (
     <>
       <Head>
-        <title>{props.title}</title>
-        <meta name="description" content={props.description} />
+        <title>Skybird</title>
+        <meta
+          name="description"
+          content="Combine your Twitter and Bluesky feeds into one!"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="flex justify-center sm:justify-start">
@@ -77,7 +74,7 @@ const Layout = (props: PropsWithChildren<LayoutProps>) => {
           </div>
         </header>
         <main className="h-screen shrink-0 grow overflow-y-scroll">
-          <div className="m-auto w-full max-w-xl flex-col justify-center border-x border-gray-800 sm:ml-0 sm:mr-auto">
+          <div className="m-auto min-h-full w-full max-w-xl flex-col justify-center border-x border-gray-800 sm:ml-0 sm:mr-auto">
             {props.children}
           </div>
         </main>

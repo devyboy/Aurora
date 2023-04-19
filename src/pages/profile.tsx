@@ -1,6 +1,5 @@
 import type { NextPage } from "next";
-import Layout from "~/components/molecules/layout";
 
-const Profile: NextPage = () => <Layout title="Profile">profile page</Layout>;
+const Profile: NextPage = () => <>profile page</>;
 
 export default Profile;
