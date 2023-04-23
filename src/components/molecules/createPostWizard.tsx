@@ -29,13 +29,7 @@ const CreatePostWizard = () => {
   return (
     <div>
       <div className="flex w-full justify-center gap-3">
-        <ProfileImg
-          profile={{
-            username: user.username,
-            id: user.id,
-            profileImageUrl: user.profileImageUrl,
-          }}
-        />
+        <ProfileImg src={user.profileImageUrl} />
         <textarea
           placeholder="Type something..."
           className="grow resize-none overflow-visible bg-transparent outline-none"

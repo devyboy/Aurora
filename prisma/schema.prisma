@@ -15,8 +15,8 @@ model Post {
   id        String   @id @unique @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   createdAt DateTime @default(dbgenerated("now()"))
   content   String   @db.VarChar(200)
-  authorId  String   @unique
   replies   String[] @db.Uuid
+  authorId  String
 
   @@index([authorId])
 }

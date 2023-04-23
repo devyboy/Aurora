@@ -32,6 +32,17 @@ const plusIcon = (
 
 const Layout = (props: PropsWithChildren) => {
   const { route } = useRouter();
+
+  const toggleDarkMode = () => {
+    const doc = document.documentElement;
+
+    if (doc.classList.contains("dark")) {
+      doc.classList.remove("dark");
+    } else {
+      doc.classList.add("dark");
+    }
+  };
+
   return (
     <>
       <Head>
@@ -43,10 +54,13 @@ const Layout = (props: PropsWithChildren) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="flex justify-center sm:justify-start">
-        <header className="relative hidden w-full max-w-md shrink sm:block">
-          <div className="absolute right-16 mt-5">
+        <header className="relative hidden w-full max-w-sm shrink sm:block">
+          <div className="absolute right-10 mt-5">
             <Link href="/home" className="mb-6">
-              <h1 className="text-4xl font-extrabold">Skybird</h1>
+              <h1 className="text-4xl font-extrabold">
+                <span className="hover:text-primary">Sky</span>
+                <span className="hover:text-secondary">bird</span>
+              </h1>
             </Link>
             <nav className="flex flex-col p-4">
               {navItems.map(({ label, to }) => {
@@ -56,25 +70,23 @@ const Layout = (props: PropsWithChildren) => {
                     key={label}
                     href={to}
                     className={`my-1 w-min rounded-xl p-3 text-left text-xl font-bold transition-all duration-150 hover:bg-white/10 ${
-                      isRouteActive ? "text-secondary" : ""
+                      isRouteActive
+                        ? "underline decoration-secondary decoration-8 underline-offset-8"
+                        : ""
                     }`}
                   >
                     {label}
                   </Link>
                 );
               })}
-              <Button
-                icon={plusIcon}
-                className="mt-5"
-                onClick={() => console.log("testing")}
-              >
+              <Button icon={plusIcon} className="mt-5" onClick={toggleDarkMode}>
                 New Post
               </Button>
             </nav>
           </div>
         </header>
-        <main className="h-screen shrink-0 grow overflow-y-scroll">
-          <div className="m-auto min-h-full w-full max-w-xl flex-col justify-center border-x border-gray-800 sm:ml-0 sm:mr-auto">
+        <main className="h-screen min-w-[36rem] grow overflow-y-scroll">
+          <div className="m-auto min-h-full max-w-[38rem] flex-col justify-center border-x border-gray-800 dark:border-gray-300 sm:ml-0 sm:mr-auto">
             {props.children}
           </div>
         </main>

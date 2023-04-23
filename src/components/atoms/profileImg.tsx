@@ -1,32 +1,21 @@
+import type { ImageProps } from "next/image";
 import Image from "next/image";
-import Link from "next/link";
 
-interface ProfileImgProps {
-  profile: {
-    profileImageUrl: string;
-    username: string | null;
-    id: string;
-  };
+interface ProfileImgProps extends Omit<ImageProps, "alt"> {
   size?: number;
+  className?: string;
 }
 
-const ProfileImg = (props: ProfileImgProps) => {
-  const {
-    profile: { profileImageUrl, username, id },
-    size = 44,
-  } = props;
-
+const ProfileImg = ({ size = 44, className, ...rest }: ProfileImgProps) => {
   return (
-    <Link href={`/${id}`} className="h-full min-w-fit">
-      <Image
-        src={profileImageUrl}
-        alt={`${username ?? "User"}'s profile picture`}
-        height={size}
-        width={size}
-        className="rounded-full"
-        priority
-      />
-    </Link>
+    <Image
+      alt=""
+      height={size}
+      width={size}
+      className={`rounded-full ${className ?? ""}`}
+      priority
+      {...rest}
+    />
   );
 };
 
