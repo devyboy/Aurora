@@ -1,10 +1,35 @@
+import type { User } from "@clerk/nextjs/dist/api";
 import type { GetStaticPaths, GetStaticProps, NextPage } from "next";
-import { LoadingPage } from "~/components/atoms/loading";
+import Loading from "~/components/atoms/loading";
 import ProfileImg from "~/components/atoms/profileImg";
-import Feed from "~/components/molecules/feed";
+import PostItem from "~/components/molecules/postItem";
 import { api } from "~/utils/api";
+import filterUsersToAuthor from "~/utils/filterUsersToAuthor";
 
 const USER_IMAGE_SIZE = 128;
+
+const UserFeed = ({ user }: { user: User }) => {
+  const filteredUser = filterUsersToAuthor(user);
+  const { isLoading, data } = api.posts.getPostsByUser.useQuery({
+    user: filteredUser,
+  });
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (!data) {
+    return <>user hasn&apos;t posted yet</>;
+  }
+
+  return (
+    <div className="flex flex-col">
+      {data?.map((data) => (
+        <PostItem data={data} key={data.post.id} />
+      ))}
+    </div>
+  );
+};
 
 const UserPage: NextPage<{ userId: string }> = ({ userId }) => {
   const { data, isLoading } = api.profile.getProfileById.useQuery({
@@ -12,7 +37,7 @@ const UserPage: NextPage<{ userId: string }> = ({ userId }) => {
   });
 
   if (isLoading) {
-    return <LoadingPage />;
+    return <Loading />;
   }
 
   if (!data) {
@@ -37,7 +62,7 @@ const UserPage: NextPage<{ userId: string }> = ({ userId }) => {
           <h3 className="text-slate-500">{emailAddresses[0]?.emailAddress}</h3>
         </div>
       </div>
-      <Feed />
+      <UserFeed user={data} />
     </>
   );
 };

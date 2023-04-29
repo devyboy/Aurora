@@ -22,7 +22,7 @@ const PostItem = (props: { data: PostType; link?: boolean }) => {
   return (
     <PostComponent
       href={postPath}
-      className="flex gap-3 border-b border-gray-800 bg-slate-950 p-3 transition-all dark:border-gray-300 dark:bg-white"
+      className="flex gap-3 border-b border-gray-800 bg-slate-950 p-3 dark:border-gray-300 dark:bg-white"
     >
       <Link href={`/${author.id}`} className="h-full min-w-fit">
         <ProfileImg src={author.profileImageUrl} />

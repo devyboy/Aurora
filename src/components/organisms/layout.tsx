@@ -2,8 +2,10 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-import { type PropsWithChildren } from "react";
+import { useContext, type PropsWithChildren } from "react";
+import ModalContext from "~/contexts/modalContext";
 import Button from "../atoms/button";
+import ToggleTheme from "../atoms/toggleTheme";
 
 const navItems = [
   { label: "Home", to: "/home" },
@@ -32,16 +34,7 @@ const plusIcon = (
 
 const Layout = (props: PropsWithChildren) => {
   const { route } = useRouter();
-
-  const toggleDarkMode = () => {
-    const doc = document.documentElement;
-
-    if (doc.classList.contains("dark")) {
-      doc.classList.remove("dark");
-    } else {
-      doc.classList.add("dark");
-    }
-  };
+  const { setIsModalOpen } = useContext(ModalContext);
 
   return (
     <>
@@ -53,7 +46,7 @@ const Layout = (props: PropsWithChildren) => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="flex justify-center sm:justify-start">
+      <div className="m-auto flex max-w-[86rem] justify-center sm:justify-start">
         <header className="relative hidden w-full max-w-sm shrink sm:block">
           <div className="absolute right-10 mt-5">
             <Link href="/home" className="mb-6">
@@ -69,7 +62,7 @@ const Layout = (props: PropsWithChildren) => {
                   <Link
                     key={label}
                     href={to}
-                    className={`my-1 w-min rounded-xl p-3 text-left text-xl font-bold transition-all duration-150 hover:bg-white/10 ${
+                    className={`my-1 w-min rounded-xl p-3 text-left text-xl font-bold transition-all duration-150 hover:bg-white/10 dark:hover:bg-black/5 ${
                       isRouteActive
                         ? "underline decoration-secondary decoration-8 underline-offset-8"
                         : ""
@@ -79,14 +72,19 @@ const Layout = (props: PropsWithChildren) => {
                   </Link>
                 );
               })}
-              <Button icon={plusIcon} className="mt-5" onClick={toggleDarkMode}>
+              <ToggleTheme />
+              <Button
+                icon={plusIcon}
+                className="mt-5"
+                onClick={() => setIsModalOpen(true)}
+              >
                 New Post
               </Button>
             </nav>
           </div>
         </header>
-        <main className="h-screen min-w-[36rem] grow overflow-y-scroll">
-          <div className="m-auto min-h-full max-w-[38rem] flex-col justify-center border-x border-gray-800 dark:border-gray-300 sm:ml-0 sm:mr-auto">
+        <main className="h-screen w-full overflow-y-scroll">
+          <div className="m-auto flex min-h-full max-w-[38rem] grow flex-col border-x border-gray-800 dark:border-gray-300 sm:ml-0 sm:mr-auto">
             {props.children}
           </div>
         </main>

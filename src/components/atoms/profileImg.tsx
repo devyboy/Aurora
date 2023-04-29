@@ -12,7 +12,7 @@ const ProfileImg = ({ size = 44, className, ...rest }: ProfileImgProps) => {
       alt=""
       height={size}
       width={size}
-      className={`rounded-full ${className ?? ""}`}
+      className={`h-full rounded-full ${className ?? ""}`}
       priority
       {...rest}
     />

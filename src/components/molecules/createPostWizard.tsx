@@ -1,6 +1,6 @@
 import { useUser } from "@clerk/nextjs";
 import { Progress } from "antd";
-import { useState, type ChangeEvent } from "react";
+import { useMemo, useState, type ChangeEvent } from "react";
 import { api } from "~/utils/api";
 import Button from "../atoms/button";
 import ProfileImg from "../atoms/profileImg";
@@ -17,6 +17,11 @@ const CreatePostWizard = () => {
     },
   });
 
+  const percentage = useMemo(
+    () => Math.floor((input.length / MAX_POST_LENGTH) * 100),
+    [input.length]
+  );
+
   const { user } = useUser();
   if (!user) return null;
 
@@ -24,15 +29,17 @@ const CreatePostWizard = () => {
     setInput(e.target.value);
   };
 
-  const percentage = Math.floor((input.length / MAX_POST_LENGTH) * 100);
+  const handleCreatePost = () => {
+    createPost({ content: input });
+  };
 
   return (
-    <div>
+    <div className="">
       <div className="flex w-full justify-center gap-3">
-        <ProfileImg src={user.profileImageUrl} />
+        <ProfileImg src={user.profileImageUrl} size={50} />
         <textarea
           placeholder="Type something..."
-          className="grow resize-none overflow-visible bg-transparent outline-none"
+          className="grow resize-none overflow-visible bg-transparent text-xl placeholder-gray-500 outline-none"
           value={input}
           onChange={handleInputChange}
           maxLength={MAX_POST_LENGTH}
@@ -49,7 +56,7 @@ const CreatePostWizard = () => {
         />
         <Button
           className="self-center"
-          onClick={() => createPost({ content: input })}
+          onClick={handleCreatePost}
           disabled={isLoading}
         >
           Post

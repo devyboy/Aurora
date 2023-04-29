@@ -1,8 +1,8 @@
-const Loading = ({ size = 30 }) => (
-  <div role="status">
+const Loading = ({ size = 40 }) => (
+  <div role="status" className="flex h-full grow items-center justify-center">
     <svg
       aria-hidden="true"
-      className="animate-spin fill-slate-200 text-gray-200 dark:text-gray-600"
+      className="animate-spin fill-primary text-gray-800 dark:text-gray-300"
       viewBox="0 0 100 101"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -21,13 +21,5 @@ const Loading = ({ size = 30 }) => (
     <span className="sr-only">Loading...</span>
   </div>
 );
-
-export const LoadingPage = () => {
-  return (
-    <div className="absolute right-0 top-0 flex h-screen w-screen items-center justify-center">
-      <Loading size={60} />
-    </div>
-  );
-};
 
 export default Loading;

@@ -1,89 +1,126 @@
-import clerkClient, { type User } from "@clerk/clerk-sdk-node";
+import clerkClient from "@clerk/clerk-sdk-node";
 import type { Post } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import { createTRPCRouter, privateProcedure, publicProcedure } from "~/server/api/trpc";
+import {
+	createTRPCRouter,
+	privateProcedure,
+	publicProcedure,
+} from "~/server/api/trpc";
+import filterUsersToAuthor from "~/utils/filterUsersToAuthor";
 
-const createPostValidator = z.object({ content: z.string().min(1).max(200) })
+const createPostValidator = z.object({ content: z.string().min(1).max(200) });
 
-const filterUserForClient = (user: User) => {
-    return {
-        id: user.id,
-        username: user.username,
-        externalUsername: user.emailAddresses[0]?.emailAddress || user.id,
-        profileImageUrl: user.profileImageUrl,
-        firstName: user.firstName
-    }
+const AuthorZodType = {
+	username: z.optional(z.string()),
+	id: z.string(),
+	emailAddress: z.optional(z.string()),
+	profileImageUrl: z.string(),
+	firstName: z.string().nullable()
 }
 
-const addUserDataToPosts = async (posts: Post[]) => {
-    const userId = posts.map((post) => post.authorId);
-    const users = (
-        await clerkClient.users.getUserList({
-            userId: userId,
-        })
-    ).map(filterUserForClient);
+export interface AuthorType {
+	username?: string;
+	id: string;
+	emailAddress?: string;
+	profileImageUrl: string;
+	firstName: string | null;
+}
 
-    return posts.map((post) => {
+const addUserDataToPosts = async (posts: Post[], user?: AuthorType) => {
+	if (user) {
 
-        const author = users.find((user) => user.id === post.authorId);
+		return posts.map((post) => ({
+			post,
+			author: {
+				...user,
+				username: user.username ?? user.emailAddress,
+			},
+		}))
+	}
 
-        if (!author) {
-            console.error("AUTHOR NOT FOUND", post);
-            throw new TRPCError({
-                code: "INTERNAL_SERVER_ERROR",
-                message: `Author for post not found. POST ID: ${post.id}, USER ID: ${post.authorId}`,
-            });
-        }
+	const userIds = posts.map((post) => post.authorId);
 
-        if (!author.username) {
-            if (!author.externalUsername) {
-                throw new TRPCError({
-                    code: "INTERNAL_SERVER_ERROR",
-                    message: `Author has no Gmail Account: ${author.id}`,
-                });
-            }
-            author.username = author.externalUsername;
-        }
-        return {
-            post,
-            author: {
-                ...author,
-                username: author.username ?? "(username not found)",
-            },
-        };
-    });
+	const users = (
+		await clerkClient.users.getUserList({
+			userId: userIds
+		})
+	).map(filterUsersToAuthor);
+
+	return posts.map((post) => {
+		const author = users.find((user) => user.id === post.authorId);
+
+		if (!author) {
+			console.error("AUTHOR NOT FOUND", post);
+			throw new TRPCError({
+				code: "INTERNAL_SERVER_ERROR",
+				message: `Author for post not found. POST ID: ${post.id}, USER ID: ${post.authorId}`,
+			});
+		}
+
+		if (!author.username) {
+			if (!author.emailAddress) {
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: `Author has no Gmail Account: ${author.id}`,
+				});
+			}
+			author.username = author.emailAddress;
+		}
+		
+		return {
+			post,
+			author: {
+				...author,
+				username: author.username ?? "(username not found)",
+			},
+		};
+	});
 };
 
-
 export const postsRouter = createTRPCRouter({
-    getAll: publicProcedure.query(async ({ ctx }) => {
-        const posts = await ctx.prisma.post.findMany()
-        return addUserDataToPosts(posts)
-    }),
+	getAll: publicProcedure.query(async ({ ctx }) => {
+		const posts = await ctx.prisma.post.findMany();
+		return addUserDataToPosts(posts);
+	}),
 
-    getPostById: publicProcedure.input(z.object({ id: z.string() }))
-        .query(async ({ ctx, input }) => {
-            const post = await ctx.prisma.post.findUnique({
-                where: { id: input.id },
-            });
+	getPostById: publicProcedure
+		.input(z.object({ id: z.string() }))
+		.query(async ({ ctx, input }) => {
+			const post = await ctx.prisma.post.findUnique({
+				where: { id: input.id },
+			});
 
-            if (!post) throw new TRPCError({ code: "NOT_FOUND" });
+			if (!post) throw new TRPCError({ code: "NOT_FOUND" });
 
-            return (await addUserDataToPosts([post]))[0]
-        }),
+			return (await addUserDataToPosts([post]))[0];
+		}),
 
-    createPost: privateProcedure.input(createPostValidator).mutation(async ({ ctx, input }) => {
-        const authorId = ctx.userId
+	getPostsByUser: publicProcedure
+		.input(z.object({ user: z.object(AuthorZodType) }))
+		.query(async ({ ctx, input }) => {
+			const posts = await ctx.prisma.post.findMany({
+				where: { authorId: input.user.id },
+			});
 
-        const post = await ctx.prisma.post.create({
-            data: {
-                content: input.content,
-                authorId,
-            }
-        })
+			if (!posts) throw new TRPCError({ code: "NOT_FOUND" });
 
-        return post
-    })
+			return addUserDataToPosts(posts, input.user)
+		}),
+
+	createPost: privateProcedure
+		.input(createPostValidator)
+		.mutation(async ({ ctx, input }) => {
+			const authorId = ctx.userId;
+
+			const post = await ctx.prisma.post.create({
+				data: {
+					content: input.content,
+					authorId,
+				},
+			});
+
+			return post;
+		}),
 });

@@ -1,5 +1,5 @@
 import type { GetStaticPaths, GetStaticProps, NextPage } from "next";
-import { LoadingPage } from "~/components/atoms/loading";
+import Loading from "~/components/atoms/loading";
 import PostItem from "~/components/molecules/postItem";
 import { api } from "~/utils/api";
 
@@ -8,15 +8,15 @@ const PostPage: NextPage<{ postId: string }> = ({ postId }) => {
     id: postId,
   });
 
-  return (
-    <>
-      {isLoading ? (
-        <LoadingPage />
-      ) : (
-        <>{!data ? <h1>404</h1> : <PostItem data={data} link={false} />}</>
-      )}
-    </>
-  );
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (!data) {
+    return <>404</>;
+  }
+
+  return <PostItem data={data} link={false} />;
 };
 
 export const getStaticProps: GetStaticProps = (context) => {
