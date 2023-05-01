@@ -39,21 +39,15 @@ const Layout = (props: PropsWithChildren) => {
   return (
     <>
       <Head>
-        <title>Skybird</title>
-        <meta
-          name="description"
-          content="Combine your Twitter and Bluesky feeds into one!"
-        />
+        <title>Aurora</title>
+        <meta name="description" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="m-auto flex max-w-[86rem] justify-center sm:justify-start">
         <header className="relative hidden w-full max-w-sm shrink sm:block">
           <div className="absolute right-10 mt-5">
             <Link href="/home" className="mb-6">
-              <h1 className="text-4xl font-extrabold">
-                <span className="hover:text-primary">Sky</span>
-                <span className="hover:text-secondary">bird</span>
-              </h1>
+              <h1 className="text-4xl font-extrabold">Aurora</h1>
             </Link>
             <nav className="flex flex-col p-4">
               {navItems.map(({ label, to }) => {
